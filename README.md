@@ -20,9 +20,22 @@
    確保你的環境已安裝 Python 3.8+。
 
 2. **安裝依賴庫**：
-   ```bash
-   pip install discord.py aiohttp python-dotenv
-安全性配置 (推薦)：為了避免 Token 外洩，請在專案根目錄建立 .env 檔案：程式碼片段DISCORD_TOKEN=你的機器人Token
-運行：Bashpython bot.py
-📋 指令清單指令說明/lookup <url>解析邀請連結，回傳建立者與伺服器資訊/id_lookup <id>直接查詢指定 ID 的使用者詳細資料⚙️ 核心開發邏輯併發控制：使用 asyncio.Semaphore(5) 確保機器人不會在瞬間發出過量請求。時間處理：利用 Snowflake ID 位元運算還原建立時間，並使用 Discord <t:timestamp:F> 語法達成時區自適應。錯誤處理：針對指令冷卻（Cooldown）與無效 ID 進行了人性化的錯誤提示。⚠️ 免責聲明本專案僅供技術研究與社群管理使用，請勿用於騷擾他人或違反 Discord 服務條款。請務必妥善保管你的 Bot Token。
+   `pip install discord.py aiohttp python-dotenv`
+3. **安全性配置 (推薦)**：
+   為了避免 Token 外洩，請在專案根目錄建立 .env 檔案：
+   `DISCORD_TOKEN=你的機器人Token`
+5. **運行**：
+   `python bot.py`
+## 📋 指令清單指
+指令,說明
+/lookup <url>,解析邀請連結，回傳建立者與伺服器資訊
+/id_lookup <id>,直接查詢指定 ID 的使用者詳細資料
+
+## ⚙️ 核心開發邏輯
+併發控制：使用 asyncio.Semaphore(5) 確保機器人不會在瞬間發出過量請求。
+時間處理：利用 Snowflake ID 位元運算還原建立時間，並使用 Discord <t:timestamp:F> 語法達成時區自適應。
+錯誤處理：針對指令冷卻（Cooldown）與無效 ID 進行了人性化的錯誤提示。
+
+## ⚠️ 免責聲明本
+專案僅供技術研究與社群管理使用，請勿用於騷擾他人或違反 Discord 服務條款。請務必妥善保管你的 Bot Token。
 ---
