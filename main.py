@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import datetime
 import aiohttp
-import asyncio  #控制 Semaphore
+import asyncio  #控制semaphore
 
 #並行限制 防止同時太多人使用被擋
 MAX_CONCURRENT_REQUESTS = 3 #限制同時只能3個請求
