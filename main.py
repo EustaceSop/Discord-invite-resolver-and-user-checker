@@ -3,12 +3,10 @@ from discord import app_commands
 from discord.ext import commands
 import datetime
 import aiohttp
-import asyncio  # 必須引入 asyncio 來控制 Semaphore
+import asyncio  #控制 Semaphore
 
-# --- 設定並行限制 ---
-# 限制全機器人「同時」只能有 5 個 API 請求正在進行
-# 這能有效防止 IP 被 Discord 暫時封鎖 (429 Too Many Requests)
-MAX_CONCURRENT_REQUESTS = 5
+#並行限制 防止同時太多人使用被擋
+MAX_CONCURRENT_REQUESTS = 3 #限制同時只能3個請求
 api_semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
 MESSAGES = {
@@ -54,7 +52,7 @@ MESSAGES = {
     }
 }
 
-# 勳章 Flag 保持不變...
+#勳章Flag
 FLAGS = { 1 << 0: "Staff", 1 << 1: "Partner", 1 << 2: "HypeSquad Events", 1 << 3: "Bug Hunter Lvl 1", 1 << 6: "Bravery", 1 << 7: "Brilliance", 1 << 8: "Balance", 1 << 9: "Early Supporter", 1 << 14: "Bug Hunter Lvl 2", 1 << 17: "Verified Dev", 1 << 22: "Active Developer" }
 
 def get_msg(locale, key):
@@ -71,22 +69,21 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
-# --- 改良後的查詢邏輯 (加入 Semaphore 保護) ---
+#獨立出來讓兩個指令都能優雅調用
 async def fetch_and_send_user_info(interaction, user_id, extra_data=None):
     locale = interaction.locale
     headers = {"Authorization": f"Bot {bot.http.token}"}
-    
-    # 使用 Semaphore 保護區塊
+
     async with api_semaphore:
         async with aiohttp.ClientSession() as session:
-            # 獲取詳細 Profile
+            #get profile
             async with session.get(f"https://discord.com/api/v10/users/{user_id}", headers=headers) as res:
                 if res.status != 200:
                     await interaction.followup.send(get_msg(locale, 'error_id').format(id=user_id))
                     return
                 u = await res.json()
 
-            # --- 資料處理與 Embed 建立 (邏輯與之前相同) ---
+            #處理資料和嵌入介面排版
             created_ts = int(((int(user_id) >> 22) + 1420070400000) / 1000)
             delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(created_ts)
             age_str = f"{delta.days // 365}{get_msg(locale, 'years')} {delta.days % 365}{get_msg(locale, 'days')}"
@@ -107,7 +104,7 @@ async def fetch_and_send_user_info(interaction, user_id, extra_data=None):
             else:
                 embed.set_footer(text=get_msg(locale, 'footer_id').format(id=user_id))
 
-            # 圖片與裝飾
+            #頭像和頭像框顯示
             avatar_url = f"https://cdn.discordapp.com/avatars/{user_id}/{u.get('avatar')}.png?size=1024"
             embed.set_thumbnail(url=avatar_url)
             deco = u.get('avatar_decoration_data')
@@ -119,7 +116,7 @@ async def fetch_and_send_user_info(interaction, user_id, extra_data=None):
 
             await interaction.followup.send(embed=embed)
 
-# --- 指令與錯誤處理 (與之前相同) ---
+#以下是指令
 @bot.tree.command(name="lookup", description="Look up user info from an invite link")
 @app_commands.describe(invite_url="Enter the invite URL or code")
 @app_commands.checks.cooldown(1, 60.0, key=lambda i: (i.user.id))
