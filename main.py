@@ -70,7 +70,7 @@ class MyBot(commands.Bot):
 bot = MyBot()
 
 #獨立出來讓兩個指令都能優雅調用
-async def fetch_and_send_user_info(interaction, user_id, extra_data=None):
+async def resolver1337(interaction, user_id, extra_data=None):
     locale = interaction.locale
     headers = {"Authorization": f"Bot {bot.http.token}"}
 
@@ -132,7 +132,7 @@ async def lookup(interaction: discord.Interaction, invite_url: str):
             inv_data['code'] = invite_code
     user_id = inv_data.get('inviter', {}).get('id')
     if not user_id: return await interaction.followup.send("⚠️ No inviter found.")
-    await fetch_and_send_user_info(interaction, user_id, inv_data)
+    await resolver1337(interaction, user_id, inv_data)
 
 @bot.tree.command(name="id_lookup", description="Directly look up user info by User ID")
 @app_commands.describe(user_id="Enter the Discord User ID")
@@ -140,7 +140,7 @@ async def lookup(interaction: discord.Interaction, invite_url: str):
 async def id_lookup(interaction: discord.Interaction, user_id: str):
     await interaction.response.defer(ephemeral=True)
     if not user_id.isdigit(): return await interaction.followup.send("❌ ID must be digits.")
-    await fetch_and_send_user_info(interaction, user_id)
+    await resolver1337(interaction, user_id)
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
